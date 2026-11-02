@@ -1,0 +1,74 @@
+# Ingress único de entrada, roteando por prefixo para o Service de cada
+# microsserviço. Namespace 'evaluation' só por convenção de onde o objeto mora —
+# o Ingress enxerga Services de qualquer namespace pelo nome qualificado.
+#
+# Dividido em dois objetos porque o NGINX Ingress Controller só aceita UM
+# rewrite-target por objeto, e os 5 backends têm dois contratos de caminho
+# diferentes:
+#
+#   - auth-service (rotas internas /validate, /admin/keys) e
+#     targeting-service (rota interna /rules) expõem nomes DIFERENTES do
+#     prefixo do Ingress -- precisam de rewrite pra remover o prefixo e
+#     expor só o nome real da rota.
+#
+#   - flag-service (rota interna /flags) e evaluation-service (rota interna
+#     /evaluate) expõem o MESMO nome do prefixo do Ingress -- não precisam
+#     de rewrite nenhum, só passagem direta do caminho recebido.
+#
+#     Antes, os 5 caminhos compartilhavam um único rewrite-target (/$2),
+#     que descartava o segmento do nome do serviço. Isso fazia com que uma
+#     chamada em /evaluate (sem nada depois) virasse internamente "/" --
+#     404 no serviço, mesmo com o pod saudável -- e só funcionava chamando
+#     /evaluate/evaluate (o "/evaluate" externo virava prefixo descartado,
+#     o segundo "evaluate" sobrevivia como o caminho real). Mesmo problema
+#     em /flags (GET listar e POST criar), sem sub-recurso.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: togglemaster
+  namespace: evaluation
+  annotations:
+    # Só pros serviços cujo nome interno da rota é diferente do prefixo do
+    # Ingress -- aqui SIM precisa descartar o prefixo.
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /auth(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service: { name: auth-service, port: { number: 8001 } }
+          - path: /targeting(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service: { name: targeting-service, port: { number: 8003 } }
+          - path: /events(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service: { name: analytics-service, port: { number: 8005 } }
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: togglemaster-direto
+  namespace: evaluation
+  # Sem rewrite-target: o caminho recebido é repassado ao backend sem
+  # alteração, porque o nome do prefixo do Ingress e o nome da rota
+  # interna do serviço são o mesmo (/flags -> /flags, /evaluate ->
+  # /evaluate). Isso também cobre naturalmente os sub-recursos
+  # (/flags/<nome>) sem precisar de nenhuma regra extra.
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /flags
+            pathType: Prefix
+            backend:
+              service: { name: flag-service, port: { number: 8002 } }
+          - path: /evaluate
+            pathType: Prefix
+            backend:
+              service: { name: evaluation-service, port: { number: 8004 } }
