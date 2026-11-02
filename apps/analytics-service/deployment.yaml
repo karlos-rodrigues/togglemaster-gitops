@@ -18,7 +18,7 @@ spec:
           # sobe no import do módulo, então N workers seriam N consumidores da mesma
           # fila DENTRO do mesmo pod, e a contagem de réplicas deixaria de ser
           # proporcional à vazão. 1 pod = 1 consumidor.
-          image: 217579643777.dkr.ecr.us-east-1.amazonaws.com/analytics-service:v0.0.0-inicial
+          image: 217579643777.dkr.ecr.us-east-1.amazonaws.com/analytics-service:v1.0.0-4cb3624
           ports: [ { containerPort: 8005, name: http } ]
           envFrom:
             - configMapRef: { name: analytics-config }
