@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/karlos-rodrigues/togglemaster-gitops.git
+    repoURL: git@github.com:karlos-rodrigues/togglemaster-gitops.git
     targetRevision: main
     path: apps/flag-service
   destination:
