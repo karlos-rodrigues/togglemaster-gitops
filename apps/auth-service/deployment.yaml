@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: 217579643777.dkr.ecr.us-east-1.amazonaws.com/auth-service:v0.0.0-inicial
+          image: 217579643777.dkr.ecr.us-east-1.amazonaws.com/auth-service:v1.0.0-f0ea038
           ports: [ { containerPort: 8001, name: http } ]
           env:
             - name: PORT
