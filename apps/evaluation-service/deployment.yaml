@@ -14,7 +14,7 @@ spec:
       serviceAccountName: evaluation-sa
       containers:
         - name: evaluation-service
-          image: 217579643777.dkr.ecr.us-east-1.amazonaws.com/evaluation-service:v0.0.0-inicial
+          image: 217579643777.dkr.ecr.us-east-1.amazonaws.com/evaluation-service:v1.0.0-bf0203d
           ports: [ { containerPort: 8004, name: http } ]
           envFrom:
             - configMapRef: { name: evaluation-config }
