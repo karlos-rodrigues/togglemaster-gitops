@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: flag-service
-          image: 217579643777.dkr.ecr.us-east-1.amazonaws.com/flag-service:v1.0.0-e4dcb55
+          image: 217579643777.dkr.ecr.us-east-1.amazonaws.com/flag-service:v1.0.0-e238cde
           ports: [ { containerPort: 8002, name: http } ]
           envFrom:
             - configMapRef: { name: flag-service-config }
