@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: targeting-service
-          image: 217579643777.dkr.ecr.us-east-1.amazonaws.com/targeting-service:v0.0.0-inicial
+          image: 217579643777.dkr.ecr.us-east-1.amazonaws.com/targeting-service:v1.0.0-8f84190
           ports: [ { containerPort: 8003, name: http } ]
           envFrom:
             - configMapRef: { name: targeting-service-config }
